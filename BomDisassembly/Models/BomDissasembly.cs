@@ -32,6 +32,8 @@ namespace BomDisassembly.Models
         public string AccountCode { get; set; }
         public double DiffBetweenCosts { get; set; }
 
+        public static Action RefreshListBom;
+
 
         public IEnumerable<BomDissasemblyRow> BomDissasemblyRows { get; set; }
 
@@ -82,6 +84,14 @@ namespace BomDisassembly.Models
             if (DiManager.Company.InTransaction)
             {
                 DiManager.Company.EndTransaction(BoWfTransOpt.wf_Commit);
+                try
+                {
+                    RefreshListBom();
+                }
+                catch (Exception e)
+                {
+ 
+                }
             }
         }
 
@@ -91,6 +101,7 @@ namespace BomDisassembly.Models
             {
                 DiManager.Company.StartTransaction();
             }
+            UserTable rsmBomHeader = DiManager.Company.UserTables.Item("RSM_BOMD_HEADER");
             UserTable rsmBomRow = DiManager.Company.UserTables.Item("RSM_BOMD_ROW");
             foreach (BomDissasemblyRow bomDissasemblyRow in BomDissasemblyRows)
             {
@@ -118,6 +129,15 @@ namespace BomDisassembly.Models
                     return;
                 }
 
+                rsmBomHeader.GetByKey(Code);
+                rsmBomHeader.UserFields.Fields.Item("U_GoodsReceiptDocNum").Value = GoodsReceiptDocNum ?? "";
+                rsmBomHeader.UserFields.Fields.Item("U_GoodsReceiptDocEntry").Value = GoodsReceiptDocEntry ?? "";
+                int uptHeader = rsmBomHeader.Update();
+                if (uptHeader != 0)
+                {
+                    Application.SBO_Application.SetStatusBarMessage(DiManager.Company.GetLastErrorDescription(),
+                        BoMessageTime.bmt_Short, true);
+                }
 
                 Recordset recSet2 = (Recordset)DiManager.Company.GetBusinessObject(BoObjectTypes.BoRecordset);
                 recSet2.DoQuery(DiManager.QueryHanaTransalte($"select top(1) Code from [@RSM_BOMD_ROW] order by Code desc"));

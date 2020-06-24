@@ -107,7 +107,7 @@ namespace BomDisassembly.Forms
         private string GenereteGridQuery(double quantity = 1)
         {
             return $"select  OITW.ItemCode, ItemName ,Quantity, Quantity*{quantity} as [TotalQuantity], OITW.AvgPrice as [Cost], " +
-                   $" OITW.AvgPrice * Quantity*{quantity} as [TotalCost], WareHouse  from ITT1 JOIN OITM on OITM.ItemCode = ITT1.Code  JOIN OITW on OITW.ItemCode = ITT1.Code AND OITW.WhsCode = ITT1.Warehouse";
+                   $" round(OITW.AvgPrice * Quantity*{quantity},2) as [TotalCost], WareHouse  from ITT1 JOIN OITM on OITM.ItemCode = ITT1.Code  JOIN OITW on OITW.ItemCode = ITT1.Code AND OITW.WhsCode = ITT1.Warehouse";
         }
 
         private SAPbouiCOM.StaticText StaticText0;
@@ -136,15 +136,24 @@ namespace BomDisassembly.Forms
 
             ChooseFromList(FormUID, pVal, "Item_1", "Item_3", "ItemCode", "ItemName");
             ChooseFromList(FormUID, pVal, "Item_11", "Item_13", "WhsCode", "WhsName");
-            ChooseFromList(FormUID, pVal, "Item_33", "", "AccCode", "WhsName");
+            ChooseFromList(FormUID, pVal, "Item_33", "", "AccCode");
 
             if (pVal.ColUID == "ItemCode")
             {
+
+                Grid0.Columns.Item("ItemCode").Type = BoGridColumnType.gct_EditText;
+                EditTextColumn editCol = (EditTextColumn)Grid0.Columns.Item("ItemCode");
+                editCol.ChooseFromListUID = "CFL_ItemCode";
+                editCol.ChooseFromListAlias = "ItemCode";
                 ChooseFromList(FormUID, pVal, "ItemCode", "ItemName", "CFL_ItemCmp", "", true, "Item_18");
 
             }
             if (pVal.ColUID == "WareHouse")
             {
+                Grid0.Columns.Item("WareHouse").Type = BoGridColumnType.gct_EditText;
+                EditTextColumn editCol = (EditTextColumn)Grid0.Columns.Item("WareHouse");
+                editCol.ChooseFromListUID = "CFL_WhsCmp";
+                editCol.ChooseFromListAlias = "WhsCode";
                 ChooseFromList(FormUID, pVal, "WareHouse", "WareHouse", "WhsCode", "WhsName", true, "Item_18");
             }
 
@@ -223,7 +232,10 @@ namespace BomDisassembly.Forms
             var activeForm = SAPbouiCOM.Framework.Application.SBO_Application.Forms.ActiveForm;
             if (activeForm.Title == "Dissembly Bill Of Material")
             {
-                RefreshGrid();
+                if (string.IsNullOrWhiteSpace(_bomDissasembly.GoodsReceiptDocEntry))
+                {
+                    RefreshGrid();
+                }
 
                 if (Grid0.Item.Enabled == true)
                 {
@@ -232,7 +244,8 @@ namespace BomDisassembly.Forms
                 }
 
 
-                ChooseFromListCollection oCfLs = activeForm.ChooseFromLists; ChooseFromListCreationParams oCflCreationParams = (ChooseFromListCreationParams)Application.SBO_Application.CreateObject(BoCreatableObjectType
+                ChooseFromListCollection oCfLs = activeForm.ChooseFromLists;
+                ChooseFromListCreationParams oCflCreationParams = (ChooseFromListCreationParams)Application.SBO_Application.CreateObject(BoCreatableObjectType
                     .cot_ChooseFromListCreationParams);
                 oCflCreationParams.ObjectType = "66";
                 oCflCreationParams.UniqueID = "CFL_ItemCode";
@@ -263,6 +276,11 @@ namespace BomDisassembly.Forms
                 activeForm.Items.Item("Item_17").Enabled = false;
 
 
+                if (!string.IsNullOrWhiteSpace(EditText10.Value))
+                {
+                    EditText14.Active = true;
+                    Grid0.Item.Enabled = false;
+                }
             }
         }
 
@@ -538,54 +556,6 @@ namespace BomDisassembly.Forms
             {
                 _bomDissasembly.BomDissasemblyRows = rows;
             }
-            //else
-            //{
-            //    RefreshGrid();
-            //    List<BomDissasemblyRow> rows2 = new List<BomDissasemblyRow>();
-            //    for (int i = 0; i < Grid0.DataTable.Rows.Count; i++)
-            //    {
-            //        string warehouse = Grid0.DataTable.GetValue("WareHouse", i).ToString();
-            //        recSet.DoQuery(DiManager.QueryHanaTransalte($"SELECT BPLid FROM OWHS WHERE WhsCode = N'{warehouse}'"));
-            //        int rowbplId = int.Parse(recSet.Fields.Item("BPLid").Value.ToString());
-            //        BomDissasemblyRow row =
-            //            new BomDissasemblyRow
-            //            {
-            //                ComponentCode = Grid0.DataTable.GetValue("ItemCode", i).ToString(),
-            //                ComponentName = Grid0.DataTable.GetValue("ItemName", i).ToString(),
-            //                Quantity = double.Parse(Grid0.DataTable.GetValue("Quantity", i).ToString(),
-            //                    CultureInfo.InvariantCulture),
-            //                TotalQuantity = double.Parse(Grid0.DataTable.GetValue("TotalQuantity", i).ToString(),
-            //                    CultureInfo.InvariantCulture),
-            //                ComponentCost = double.Parse(Grid0.DataTable.GetValue("Cost", i).ToString(),
-            //                    CultureInfo.InvariantCulture),
-            //                ComponentTotalCost = double.Parse(Grid0.DataTable.GetValue("TotalCost", i).ToString(),
-            //                    CultureInfo.InvariantCulture),
-            //                WhsCode = warehouse,
-            //                BplId = rowbplId
-            //            };
-            //        rows2.Add(row);
-            //    }
-
-            //    _bomDissasembly.BomDissasemblyRows = rows2;
-
-            //    int index = 0;
-            //    SAPbouiCOM.Framework.Application.SBO_Application.Forms.ActiveForm.Freeze(true);
-            //    Grid0.DataTable.Rows.Add(_bomDissasembly.BomDissasemblyRows.Count() - 1);
-            //    foreach (BomDissasemblyRow bomDissasemblyBomDissasemblyRow in _bomDissasembly.BomDissasemblyRows)
-            //    {
-            //        Grid0.DataTable.SetValue("ItemCode", index, bomDissasemblyBomDissasemblyRow.ComponentCode);
-            //        Grid0.DataTable.SetValue("ItemName", index, bomDissasemblyBomDissasemblyRow.ComponentName);
-            //        Grid0.DataTable.SetValue("Quantity", index, bomDissasemblyBomDissasemblyRow.Quantity);
-            //        Grid0.DataTable.SetValue("TotalQuantity", index, bomDissasemblyBomDissasemblyRow.TotalQuantity);
-            //        Grid0.DataTable.SetValue("Cost", index, bomDissasemblyBomDissasemblyRow.ComponentCost);
-            //        Grid0.DataTable.SetValue("WareHouse", index, bomDissasemblyBomDissasemblyRow.WhsCode);
-            //        Grid0.DataTable.SetValue("TotalCost", index, bomDissasemblyBomDissasemblyRow.ComponentTotalCost);
-            //        index++;
-            //    }
-
-            //    SAPbouiCOM.Framework.Application.SBO_Application.Forms.ActiveForm.Freeze(false);
-            //}
-
 
             try
             {
@@ -654,7 +624,7 @@ namespace BomDisassembly.Forms
             }
             catch (Exception e)
             {
- 
+
             }
 
             SAPbouiCOM.Framework.Application.SBO_Application.Forms.ActiveForm.Freeze(false);
@@ -741,11 +711,13 @@ namespace BomDisassembly.Forms
             goodsIssue.Lines.Quantity = _bomDissasembly.PlannedQuantity;
             goodsIssue.Lines.WarehouseCode = _bomDissasembly.WhsCode;
             goodsIssue.Lines.AccountCode = _bomDissasembly.AccountCode;
+            goodsIssue.Comments = _bomDissasembly.Comment;
             var res = goodsIssue.Add();
             if (res != 0)
             {
                 Application.SBO_Application.SetStatusBarMessage(DiManager.Company.GetLastErrorDescription(),
                     BoMessageTime.bmt_Short, true);
+                return;
             }
             else
             {
@@ -763,6 +735,8 @@ namespace BomDisassembly.Forms
                 _bomDissasembly.AddHeader();
             }
             GetItem("Item_32").Click();
+
+            GetItem("Item_1").Enabled = false;
             GetItem("Item_33").Enabled = false;
             GetItem("Item_9").Enabled = false;
             GetItem("Item_11").Enabled = false;
@@ -857,6 +831,7 @@ namespace BomDisassembly.Forms
             SAPbobsCOM.Documents goodsReceipt =
                 (Documents)DiManager.Company.GetBusinessObject(BoObjectTypes.oInventoryGenEntry);
             goodsReceipt.DocDate = _bomDissasembly.PostingDate;
+            goodsReceipt.Comments = _bomDissasembly.Comment;
             goodsReceipt.BPL_IDAssignedToInvoice = _bomDissasembly.BomDissasemblyRows.First().BplId;
 
             foreach (BomDissasemblyRow bomDissasemblyRow in _bomDissasembly.BomDissasemblyRows)
@@ -865,7 +840,7 @@ namespace BomDisassembly.Forms
                 goodsReceipt.Lines.Quantity = bomDissasemblyRow.TotalQuantity;
                 goodsReceipt.Lines.WarehouseCode = bomDissasemblyRow.WhsCode;
                 goodsReceipt.Lines.AccountCode = _bomDissasembly.AccountCode;
-                goodsReceipt.Lines.Price = bomDissasemblyRow.ComponentCost;
+                goodsReceipt.Lines.UnitPrice = bomDissasemblyRow.ComponentCost;
                 goodsReceipt.Lines.Add();
             }
 

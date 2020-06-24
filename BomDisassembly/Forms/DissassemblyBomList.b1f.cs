@@ -38,6 +38,7 @@ namespace BomDisassembly.Forms
         private void OnCustomInitialize()
         {
             Refresh();
+            BomDissasembly.RefreshListBom += Refresh;
         }
 
         private void Grid0_ClickAfter(object sboObject, SAPbouiCOM.SBOItemEventArg pVal)
