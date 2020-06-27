@@ -5,4 +5,3 @@ D:\Users\nkurdadze\Documents\Visual Studio 2015\Projects\BomDisassembly\BomDisas
 D:\Users\nkurdadze\Documents\Visual Studio 2015\Projects\BomDisassembly\BomDisassembly\bin\Debug\Antlr3.Runtime.dll
 D:\Users\nkurdadze\Documents\Visual Studio 2015\Projects\BomDisassembly\BomDisassembly\obj\Debug\BomDisassembly.exe
 D:\Users\nkurdadze\Documents\Visual Studio 2015\Projects\BomDisassembly\BomDisassembly\obj\Debug\BomDisassembly.pdb
-D:\Users\nkurdadze\Documents\Visual Studio 2015\Projects\BomDisassembly\BomDisassembly\obj\Debug\BomDisassembly.csprojResolveAssemblyReference.cache

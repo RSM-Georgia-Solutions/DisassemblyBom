@@ -140,20 +140,34 @@ namespace BomDisassembly.Forms
 
             if (pVal.ColUID == "ItemCode")
             {
+                try
+                {
 
-                Grid0.Columns.Item("ItemCode").Type = BoGridColumnType.gct_EditText;
-                EditTextColumn editCol = (EditTextColumn)Grid0.Columns.Item("ItemCode");
-                editCol.ChooseFromListUID = "CFL_ItemCode";
-                editCol.ChooseFromListAlias = "ItemCode";
+                    Grid0.Columns.Item("ItemCode").Type = BoGridColumnType.gct_EditText;
+                    EditTextColumn editCol = (EditTextColumn)Grid0.Columns.Item("ItemCode");
+                    //editCol.ChooseFromListUID = "CFL_ItemCode";
+                    editCol.ChooseFromListAlias = "ItemCode";
+                }
+                catch (Exception e)
+                {
+ 
+                }
                 ChooseFromList(FormUID, pVal, "ItemCode", "ItemName", "CFL_ItemCmp", "", true, "Item_18");
 
             }
             if (pVal.ColUID == "WareHouse")
             {
-                Grid0.Columns.Item("WareHouse").Type = BoGridColumnType.gct_EditText;
-                EditTextColumn editCol = (EditTextColumn)Grid0.Columns.Item("WareHouse");
-                editCol.ChooseFromListUID = "CFL_WhsCmp";
-                editCol.ChooseFromListAlias = "WhsCode";
+                try
+                {
+                    Grid0.Columns.Item("WareHouse").Type = BoGridColumnType.gct_EditText;
+                    EditTextColumn editCol = (EditTextColumn)Grid0.Columns.Item("WareHouse");
+                    //editCol.ChooseFromListUID = "CFL_WhsCmp";
+                    editCol.ChooseFromListAlias = "WhsCode";
+                }
+                catch (Exception e)
+                {
+ 
+                }
                 ChooseFromList(FormUID, pVal, "WareHouse", "WareHouse", "WhsCode", "WhsName", true, "Item_18");
             }
 
